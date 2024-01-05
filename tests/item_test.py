@@ -20,6 +20,7 @@ def test_item_status_return_boolean_default_false():
 def test_item_name_if_empty_gives_error():
     with pytest.raises(ValueError):
         item1 = item(name="", description="A sword for fighting")
+        print(item1.name)
 
 def test_item_has_id():
     item1 = item(name="Sword", description="A sword for fighting")
