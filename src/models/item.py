@@ -146,3 +146,13 @@ def read_todolists(
     if not todolists:
         raise HTTPException(status_code=404, detail="ToDoLists not found")
     return todolists
+
+@app.get("/todolist/{todolist_id}", response_model=ToDoListRead)
+def read_todolist(
+    *,
+    session:Session = Depends(get_session),
+    todolist_id: int):
+    todolist = session.get(ToDoList, todolist_id)
+    if not todolist:
+        raise HTTPException(status_code=404, detail="ToDoList not found")
+    return todolist
