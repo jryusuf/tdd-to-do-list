@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import Optional
-from sqlmodel import SQLModel, Field,create_engine, Session, select
+from typing import Optional, List
+from sqlmodel import SQLModel, Field,create_engine, Session, select,Relationship
 from fastapi import FastAPI,HTTPException,Query, Depends
 
 class ItemBase(SQLModel):
@@ -8,8 +8,12 @@ class ItemBase(SQLModel):
     description: Optional[str]= Field(None, max_length=500)
     status: bool = False
 
+    list_id: Optional[int] = Field(default=None, foreign_key="todolist.id")
+
 class Item(ItemBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+
+    list: Optional['ToDoList'] = Relationship(back_populates="items")
 
 class ItemCreate(ItemBase):
     pass
@@ -21,6 +25,7 @@ class ItemUpdate(SQLModel):
     name: Optional[str] = Field(None,min_length=1,max_length=100)
     description: Optional[str]= Field(None, max_length=500)
     status: Optional[bool] = False
+    list_id: Optional[int] = Field(default=None)
     
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -101,3 +106,25 @@ def delete_item(
         session.delete(item)
         session.commit()
         return {"ok": True}
+    
+
+
+
+class ToDoListBase(SQLModel):
+    name: str = Field(...,min_length=1,max_length=100)
+    description: Optional[str]= Field(None, max_length=500)
+
+class ToDoList(ToDoListBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    items: List['Item'] = Relationship(back_populates="todolist")
+
+class ToDoListCreate(ToDoListBase):
+    pass
+
+class ToDoListRead(ToDoListBase):
+    id: int
+
+class ToDoListUpdate(SQLModel):
+    name: Optional[str] = Field(None,min_length=1,max_length=100)
+    description: Optional[str]= Field(None, max_length=500)
