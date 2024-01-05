@@ -28,7 +28,7 @@ class ItemUpdate(SQLModel):
     status: Optional[bool] = False
     list_id: Optional[int] = None
 
-class ItemWithListToDoList(ItemRead):
+class ItemReadWithListToDoList(ItemRead):
     todolist: Optional['ToDoList'] = None
     
 sqlite_file_name = "database.db"
