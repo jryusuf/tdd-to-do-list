@@ -73,7 +73,7 @@ def read_items(
         raise HTTPException(status_code=404, detail="Items not found")
     return items
     
-@app.get("/item/{item_id}", response_model=ItemRead)
+@app.get("/item/{item_id}", response_model=ItemReadWithListToDoList)
 def read_item(
     *,
     session:Session = Depends(get_session),
@@ -133,7 +133,7 @@ class ToDoListUpdate(SQLModel):
     name: Optional[str] = Field(None,min_length=1,max_length=100)
     description: Optional[str]= Field(None, max_length=500)
 
-class ToDoListWithItems(ToDoListRead):
+class ToDoListReadWithItems(ToDoListRead):
     items: List[ItemRead] = []
 
 @app.post("/todolist/", response_model=ToDoListRead)
@@ -168,7 +168,7 @@ def read_todolist(
         raise HTTPException(status_code=404, detail="ToDoList not found")
     return todolist
 
-@app.patch("/todolist/{todolist_id}", response_model=ToDoListRead)
+@app.patch("/todolist/{todolist_id}", response_model=ToDoListReadWithItems)
 def update_todolist(
     *,
     session:Session = Depends(get_session),
