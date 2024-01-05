@@ -1,8 +1,7 @@
-class Item:
-    def __init__(self, name:str, description:str, status:bool = False):
-        if not name:
-            raise ValueError("Name cannot be empty")
-        
-        self.name = name
-        self.description = description
-        self.status = status
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class Item(BaseModel):
+    name: str = Field(...,min_length=1,max_length=100)
+    description: Optional[str]= Field(None, max_length=500)
+    status: bool = False
