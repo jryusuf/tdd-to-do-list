@@ -156,3 +156,32 @@ def read_todolist(
     if not todolist:
         raise HTTPException(status_code=404, detail="ToDoList not found")
     return todolist
+
+@app.patch("/todolist/{todolist_id}", response_model=ToDoListRead)
+def update_todolist(
+    *,
+    session:Session = Depends(get_session),
+    todolist_id: int, todolist: ToDoListUpdate):
+    db_todolist = session.get(ToDoList, todolist_id)
+    if not db_todolist:
+        raise HTTPException(status_code=404, detail="ToDoList not found")
+    todolist_data = todolist.model_dump(exclude_unset=True)
+    for key, value in todolist_data.items():
+        setattr(db_todolist, key, value)
+    session.add(db_todolist)
+    session.commit()
+    session.refresh(db_todolist)
+    return db_todolist
+
+@app.delete("/todolist/{todolist_id}")
+def delete_todolist(
+    *,
+    session:Session = Depends(get_session),
+    todolist_id: int):
+    todolist = session.get(ToDoList, todolist_id)
+    if not todolist:
+        raise HTTPException(status_code=404, detail="ToDoList not found")
+    session.delete(todolist)
+    session.commit()
+    return {"ok": True}
+
