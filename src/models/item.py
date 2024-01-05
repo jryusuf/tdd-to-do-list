@@ -8,9 +8,13 @@ class ItemBase(SQLModel):
     description: Optional[str]= Field(None, max_length=500)
     status: bool = False
 
+    list_id: Optional[int] = Field(default=None, foreign_key="todolist.id")
+
 
 class Item(ItemBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+
+    todolist: Optional['ToDoList'] = Relationship(back_populates="items")
 
 class ItemCreate(ItemBase):
     pass
@@ -22,7 +26,7 @@ class ItemUpdate(SQLModel):
     name: Optional[str] = Field(None,min_length=1,max_length=100)
     description: Optional[str]= Field(None, max_length=500)
     status: Optional[bool] = False
-    list_id: Optional[int] = Field(default=None)
+    list_id: Optional[int] = None
     
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -113,6 +117,7 @@ class ToDoListBase(SQLModel):
 
 class ToDoList(ToDoListBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    items: List['Item'] = Relationship(back_populates="todolist")
 
 
 class ToDoListCreate(ToDoListBase):
