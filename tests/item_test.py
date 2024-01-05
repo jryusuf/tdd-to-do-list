@@ -16,3 +16,7 @@ def test_item_status_return_boolean():
 def test_item_status_return_boolean_default_false():
     item1 = item("Sword", "A sword for fighting")
     assert item1.status == False
+
+def test_item_name_if_empty_gives_error():
+    with pytest.raises(ValueError):
+        item1 = item("", "A sword for fighting")
