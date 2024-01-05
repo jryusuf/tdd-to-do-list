@@ -27,6 +27,9 @@ class ItemUpdate(SQLModel):
     description: Optional[str]= Field(None, max_length=500)
     status: Optional[bool] = False
     list_id: Optional[int] = None
+
+class ItemWithListToDoList(ItemRead):
+    todolist: Optional['ToDoList'] = None
     
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -129,6 +132,9 @@ class ToDoListRead(ToDoListBase):
 class ToDoListUpdate(SQLModel):
     name: Optional[str] = Field(None,min_length=1,max_length=100)
     description: Optional[str]= Field(None, max_length=500)
+
+class ToDoListWithItems(ToDoListRead):
+    items: List[ItemRead] = []
 
 @app.post("/todolist/", response_model=ToDoListRead)
 def create_todolist(
