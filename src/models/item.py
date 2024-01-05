@@ -28,8 +28,7 @@ class ItemUpdate(SQLModel):
     status: Optional[bool] = False
     list_id: Optional[int] = None
 
-class ItemReadWithListToDoList(ItemRead):
-    todolist: Optional['ToDoList'] = None
+
     
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -73,15 +72,7 @@ def read_items(
         raise HTTPException(status_code=404, detail="Items not found")
     return items
     
-@app.get("/item/{item_id}", response_model=ItemReadWithListToDoList)
-def read_item(
-    *,
-    session:Session = Depends(get_session),
-    item_id: int):
-    item = session.get(Item, item_id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+
     
 @app.patch("/item/{item_id}", response_model=ItemRead)
 def update_item(
@@ -136,6 +127,9 @@ class ToDoListUpdate(SQLModel):
 class ToDoListReadWithItems(ToDoListRead):
     items: List[ItemRead] = []
 
+class ItemReadWithToDoList(ItemRead):
+    todolist: Optional['ToDoListRead'] = None
+
 @app.post("/todolist/", response_model=ToDoListRead)
 def create_todolist(
     *,
@@ -158,7 +152,7 @@ def read_todolists(
         raise HTTPException(status_code=404, detail="ToDoLists not found")
     return todolists
 
-@app.get("/todolist/{todolist_id}", response_model=ToDoListRead)
+@app.get("/todolist/{todolist_id}", response_model=ToDoListReadWithItems)
 def read_todolist(
     *,
     session:Session = Depends(get_session),
@@ -168,7 +162,7 @@ def read_todolist(
         raise HTTPException(status_code=404, detail="ToDoList not found")
     return todolist
 
-@app.patch("/todolist/{todolist_id}", response_model=ToDoListReadWithItems)
+@app.patch("/todolist/{todolist_id}", response_model=ToDoListRead)
 def update_todolist(
     *,
     session:Session = Depends(get_session),
@@ -196,3 +190,12 @@ def delete_todolist(
     session.commit()
     return {"ok": True}
 
+@app.get("/item/{item_id}", response_model=ItemReadWithToDoList)
+def read_item(
+    *,
+    session:Session = Depends(get_session),
+    item_id: int):
+    item = session.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
